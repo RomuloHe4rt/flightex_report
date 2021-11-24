@@ -5,4 +5,5 @@ defmodule Flightex do
     UserAgent.start_link(%{})
   end
 
-  de
+  defdelegate create_or_update(params), to: CreateOrUpdate, as: :call
+end
