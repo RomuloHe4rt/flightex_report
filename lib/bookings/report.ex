@@ -8,6 +8,27 @@ defmodule Flightex.Bookings.Report do
     File.write(filename, booking_list)
   end
 
+  def generate_date_report(from_date, to_date, filename \\ "report.csv") do
+    booking_list = build_booking_list_date_range(from_date, to_date)
+
+    File.write(filename, booking_list)
+    {:ok, "Report generated successfully"}
+  end
+
+  defp build_booking_list_date_range(from_date, to_date) do
+    BookingAgent.get_all()
+    |> Map.values()
+    |> Stream.filter(&compare_dates(&1, from_date, to_date))
+    |> Enum.map(&booking_string/1)
+  end
+
+  defp compare_dates(%Booking{complete_date: complete_date}, from_date, to_date) do
+    begin_date = NaiveDateTime.compare(complete_date, from_date)
+    end_date = NaiveDateTime.compare(complete_date, to_date)
+
+    (begin_date == :gt or begin_date == :eq) and (end_date == :lt or end_date == :eq)
+  end
+
   defp build_booking_list do
     BookingAgent.get_all()
     |> Map.values()
